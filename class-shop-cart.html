@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+This page consists of two sections. A registration form on the left for customers and a product display area on the right.
+
+All necessary files are in the assets folder except for index.html and cart.html.
+
+Try to do everything in the list below but don't worry if you can't solve something, solve whatever you can. You will probably need to work together in order to do everything. There are many different levels of difficulty represented in this challenge.
+
+
+Stack Rank = Most Important is #1. and so on...
+
+1. Once a user registers once, hide the registration form. (HINT use LocalStorage).
+
+cc - BuildView storage - inject onto page
+
+2. Add a Qty input field to the first product display, make sure you are actually capturing and saving that data along with the rest of the form which is already working.
+
+3. Delete the second and third products on index.html.
+
+cc - Show data source in a foor loop that loops through product array or object and that will produce thumbnails.
+
+4. Create an object to save your product information in. (what else besides description, productId and, price will you need to store in your object/array?)
+
+5. Now display the products using the one product that is on the page as a template to dynamically generate and display all the products that are in your object. You can use any combination of objects and arrays you want to solve the problem. The more OOP you use the better but there are many ways to solve this problem so start with whatever you can get that works then refine your code from there.
+
+6. Complete the save product information part of the script below.
+
+7. Create an empty cart button. if you were able to save product info when the user clicks add then remember you'll need to clear both the product info and count from localstorage.
+
+8. Add shipping information to the regsiter form
+
+9. Validate the form inputs
+
+10. Save that data along with the rest.
+
+cc - where does the ball start rolling
+cc - what happens next? how?
+cc - how does it connect to the stuff on the page?
+
+
+
+
+-->
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" media="screen" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <title>Shopping Cart o Matic</title>
+
+    <!--  -->
+<!-- You can use this as a place to test styles then move them to assets/scc/custom.css -->
+    <style>
+        .numbah{width:50px;}
+    </style>
+
+</head>
+<body>
+
+    <div class="container" style="margin-top:100px">
+
+   <!-- Signup Form  -->
+        
+            <div class="col-md-4" id="theForm">
+            <form>
+            <label>First Name</label>
+            <input type="text" id="firstName" class="form-control"  onkeyup="validateLetters(this);" maxlength="35" required>
+            <label>Last Name</label>
+            <input type="text" id="lastName" class="form-control"  onkeyup="validateLetters(this);" maxlength="35" required />
+            <label>Email</label>
+            <input type="email" id="email" class="form-control" onkeyup="validateEmail(this);" required/>
+            <label>Age</label>
+            <input type="text" id="age" class="form-control" onkeyup="validateNum(this);" maxlength = "2" required/>
+            <label>Please enter your shipping address</label>
+            <input type="text" class="form-control"  id="uaddress"  placeholder="Input street address here" required/>
+            <label>City</label>
+            <input type="text" class="form-control"  id="ucity" onkeyup="validateLetters(this);" placeholder="Input city here" required/>
+            <label>State</label>
+            <input type="text" class="form-control"  id="ustate"onkeyup="validateLetters(this);" placeholder="Input state here" required/>
+            <label>ZipCode</label>
+            <input type="number" id="uzip" class="form-control" onkeyup="validateNum(this);" max="5" required />
+                
+            <label>Favorite Product Type</label>
+            <select id="favoriteProduct" class="form-control">
+                <option value="cameras" id="">Cameras</option>
+                <option value="clothing" id="">Clothing</option>
+                <option value="games" id="">Games</option>
+            </select>
+            <hr/>
+<!--                cc - Every bit must be in local storage before you get to this point or you'll lose it all-->
+           <a href="cart.html" class="btn btn-success" onclick="saveForm()">Register</a>
+              
+                </form>
+            </div>
+            <br/>
+            <hr/>
+        
+<!--        Display Cart Demo-->
+<!--
+        <div>
+    <ul>
+        <li><a class="add-to-cart" href="#" data-name="Apple" data-price="1.22">Apple $1.22</a></li>
+        <li><a class="add-to-cart" href="#" data-name="Mango" data-price="1.33">Mango $1.39</a></li>
+        <li><a class="add-to-cart" href="#" data-name="Banana" data-price="1.33">Banana $1.33</a></li>
+        <li><a class="add-to-cart" href="#" data-name="Frisbee" data-price="5.22">Frisbee $5.22</a></li>
+    </ul>-->
+    <button id="clear-cart">Clear Cart</button>
+
+<!--</div>-->
+
+        
+        <div>
+    <ul id ="show-cart">
+        
+    </ul>
+    <div>Total Cart:$<span id="total-cart"></span></div>
+</div>
+   <!--Cart Counter View Cart  -->
+        <div id="cartcount"></div> <a href="cart.html">View Cart</a>
+        <div class="col-md-6" id="theProducts">
+            
+            <div id="showProducts"><div>
+            
+            <div class="col-md-4" >
+   <!--Product 1  -->
+                <img src="http://placehold.it/460x250/e67e22/ffffff&text=HTML5" class="img-responsive">
+                <div id="producttitle">Product 1</div>
+                <div class="productprice">
+                    <div class="pull-right">
+                        <input type="number" id="quant1" class="numbah" class="form-control" required />
+                        <a href="#" class="btn btn-danger btn-sm add-to-cart" data-name="Product 1" role="button" data-price="1.00">ADD</a></div>
+                
+                    <div class="pricetext">$1.00</div>
+                </div>
+                <hr/>
+            </div>
+           <div class="col-md-4" >
+   <!--Product 1  -->
+                <img src="http://placehold.it/460x250/e67e22/ffffff&text=HTML5" class="img-responsive">
+                <div id="producttitle">Product 2</div>
+                <div class="productprice">
+                    <div class="pull-right">
+                        <input type="number" id="quant1" class="numbah" class="form-control" required />
+                        <a href="#" class="btn btn-danger btn-sm add-to-cart" data-name="Product 2" role="button" data-price="2.00">ADD</a></div>
+                
+                    <div class="pricetext">$2.00</div>
+                </div>
+                <hr/>
+            </div>
+              <div class="col-md-4" >
+   <!--Product 1  -->
+                <img src="http://placehold.it/460x250/e67e22/ffffff&text=HTML5" class="img-responsive">
+                <div id="producttitle">Product 3</div>
+                <div class="productprice">
+                    <div class="pull-right">
+                        <input type="number" id="quant1" class="numbah" class="form-control" required />
+                        <a href="#" class="btn btn-danger btn-sm add-to-cart" data-name="Product 3" role="button" data-price="3.00">ADD</a></div>
+                
+                    <div class="pricetext">$3.00</div>
+                </div>
+                <hr/>
+            </div>
+                
+<!--                new row-->
+                   <div class="col-md-4" >
+   <!--Product 1  -->
+                <img src="http://placehold.it/460x250/e67e22/ffffff&text=HTML5" class="img-responsive">
+                <div id="producttitle">Product 4</div>
+                <div class="productprice">
+                    <div class="pull-right">
+                        <input type="number" id="quant1" class="numbah" class="form-control" required />
+                        <a href="#" class="btn btn-danger btn-sm add-to-cart" data-name="Product 4" role="button" data-price="4.00">ADD</a></div>
+                
+                    <div class="pricetext">$4.00</div>
+                </div>
+                <hr/>
+            </div>
+           <div class="col-md-4" >
+   <!--Product 1  -->
+                <img src="http://placehold.it/460x250/e67e22/ffffff&text=HTML5" class="img-responsive">
+                <div id="producttitle">Product 5</div>
+                <div class="productprice">
+                    <div class="pull-right">
+                        <input type="number" id="quant1" class="numbah" class="form-control" required />
+                        <a href="#" class="btn btn-danger btn-sm add-to-cart" data-name="Product 5" role="button" data-price="5.00">ADD</a></div>
+                
+                    <div class="pricetext">$5.00</div>
+                </div>
+                <hr/>
+            </div>
+              <div class="col-md-4" >
+   <!--Product 1  -->
+                <img src="http://placehold.it/460x250/e67e22/ffffff&text=HTML5" class="img-responsive">
+                <div id="producttitle">Product 6</div>
+                <div class="productprice">
+                    <div class="pull-right">
+                        <input type="number" id="quant1" class="numbah" class="form-control" required />
+                        <a href="#" class="btn btn-danger btn-sm add-to-cart" data-name="Product 6" role="button" data-price="6.00">ADD</a></div>
+                
+                    <div class="pricetext">$6.00</div>
+                </div>
+                <hr/>
+            </div>
+<!--                new row-->
+                   <div class="col-md-4" >
+   <!--Product 1  -->
+                <img src="http://placehold.it/460x250/e67e22/ffffff&text=HTML5" class="img-responsive">
+                <div id="producttitle">Product 7</div>
+                <div class="productprice">
+                    <div class="pull-right">
+                        <input type="number" id="quant1" class="numbah" class="form-control" required />
+                        <a href="#" class="btn btn-danger btn-sm add-to-cart" data-name="Product 7" role="button" data-price="7.00">ADD</a></div>
+                
+                    <div class="pricetext">$7.00</div>
+                </div>
+                <hr/>
+            </div>
+           <div class="col-md-4" >
+   <!--Product 1  -->
+                <img src="http://placehold.it/460x250/e67e22/ffffff&text=HTML5" class="img-responsive">
+                <div id="producttitle">Product 8</div>
+                <div class="productprice">
+                    <div class="pull-right">
+                        <input type="number" id="quant1" class="numbah" class="form-control" required />
+                        <a href="#" class="btn btn-danger btn-sm add-to-cart" data-name="Product 8" role="button" data-price="2.00">ADD</a></div>
+                
+                    <div class="pricetext">$8.00</div>
+                </div>
+                <hr/>
+            </div>
+              <div class="col-md-4" >
+   <!--Product 1  -->
+                <img src="http://placehold.it/460x250/e67e22/ffffff&text=HTML5" class="img-responsive">
+                <div id="producttitle">Product 3</div>
+                <div class="productprice">
+                    <div class="pull-right">
+                        <input type="number" id="quant1" class="numbah" class="form-control" required />
+                        <a href="#" class="btn btn-danger btn-sm add-to-cart" data-name="Product 9" role="button" data-price="9.00">ADD</a></div>
+                
+                    <div class="pricetext">$9.00</div>
+                </div>
+                <hr/>
+            </div>
+                </div>
+
+   <!-- end products -->
+
+
+
+        </div>   <!-- end col 6 -->
+        
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+
+
+    </div><!-- end container -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" media="screen" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    
+    </head>
+    
+    <body>
+
+<!--
+<h1>Shopping Cart</h1>
+        
+        <div id="showCart"></div>
+-->
+
+<!--
+<div>
+    <ul>
+        <li><a class="add-to-cart" href="#" data-name="Apple" data-price="1.22">Apple $1.22</a></li>
+        <li><a class="add-to-cart" href="#" data-name="Mango" data-price="1.33">Mango $1.39</a></li>
+        <li><a class="add-to-cart" href="#" data-name="Banana" data-price="1.33">Banana $1.33</a></li>
+        <li><a class="add-to-cart" href="#" data-name="Frisbee" data-price="5.22">Frisbee $5.22</a></li>
+    </ul>
+    <button id="clear-cart">Clear Cart</button?>
+
+</div>
+-->
+
+<div>
+    <ul id ="show-cart">
+       
+    </ul>
+    <div><span id="total-cart"></span></div>
+</div>
+
+
+<script>
+
+    $(".add-to-cart").click(function(event){
+        event.preventDefault();
+        var name = $(this).attr('data-name');
+        var price = Number ($(this).attr("data-price"));
+                            
+        addItemToCart(name, price, 1);
+        displayCart();
+        
+    });
+    
+    $("#clear-cart").click(function (event) {
+    clearCart();           
+        displayCart();
+    });
+
+    function displayCart() {
+        var cartArray = listCart();
+        var output = '';
+        for (var i in cartArray) {
+            output += '<li>'
+                +cartArray[i].name
+                +' '+cartArray[i].count
+                +' x '+cartArray[i].price
+                +' = '+cartArray[i].total
+                +" <button class='plus-item' data-name='"
+                +cartArray[i].name+"'>+</button>"
+                +" <button class='subtract-item' data-name='"
+                +cartArray[i].name+"'>-</button>"
+                +" <button class='delete-item' data-name='"
+                +cartArray[i].name+"'>X</button>"
+                +' </li>'
+        }
+        $('#show-cart').html(output);
+        $("#total-cart").html(totalCart () )
+    }
+    
+    //.on - contains element in <li> for "show-cart" div
+    $("#show-cart").on('click', '.delete-item',function (event) {
+        var name = $(this).attr("data-name");
+        removeItemFromCartAll(name);
+        displayCart();
+        
+    });
+    
+    $("#show-cart").on('click', '.subtract-item',function (event) {
+        var name = $(this).attr("data-name");
+        removeItemFromCart(name);
+        displayCart();
+        
+    });
+    
+     $("#show-cart").on('click', '.plus-item',function (event) {
+        var name = $(this).attr("data-name");
+        addItemToCart(name, 0, 1);
+        displayCart();
+        
+    });
+    
+    
+    // ***********************Shopping Cart Functions:
+    
+    //Holds cart items
+    var cart = [];
+    //Function that generates objects that will store in the cart away
+    var Item = function (name, price, count) {
+        this.name = name
+        this.price = price
+        this.count = count
+        
+
+    };
+    //What does the cart need to do?
+    function addItemToCart(name, price, count) {
+        for (var i in cart) {
+            if (cart[i].name === name) {
+                cart[i].count += count;
+                saveCart();
+                // stops loop
+                return;
+            }
+
+        }
+        var item = new Item(name, price, count);
+        cart.push(item);
+        saveCart();
+    }
+
+
+
+    //Removes one item
+    function removeItemFromCart(name) {
+        for (var i in cart) {
+            if (cart[i].name === name) {
+                cart[i].count  --; //cart[i].count = cart[i].count -1;
+                if (cart[i].count === 0) {
+                    //used to remove items from array
+                    cart.splice(i, 1);
+
+                }
+                //breaks the loop 
+                break;
+
+            }
+        }
+        saveCart();
+    }
+
+    function clearCart() {
+
+        cart = [];
+        saveCart();
+    }
+
+    function removeItemFromCartAll(name) {
+        for (var i in cart) {
+            if (cart[i].name === name) {
+                cart.splice(i, 1);
+                //quit the for loop early before its done
+                break;
+
+            }
+        }
+        saveCart();
+    }
+
+    function countCart() {
+        var totalCount = 0;
+        for (var i in cart) {
+            totalCount += cart[i].count;
+
+        }
+
+        return totalCount;
+
+    }
+
+    console.log(countCart());
+
+    function totalCart() { // -> return total cost
+        var totalCost = 0;
+        for (var i in cart) {
+            totalCost += cart[i].price * cart[i].count;
+
+        }
+        return totalCost.toFixed(2);
+    }
+    console.log(totalCart());
+
+    //returns a unique array full of unique objects
+    function listCart() { // -> array of Items
+        var cartCopy = [];
+        for (var i in cart) {
+            var item = cart[i];
+            var itemCopy = {};
+            //gets 3 properties (keys) - name, price, count
+            for (var p in item) {
+                itemCopy[p] = item[p];
+            }
+            itemCopy.total = (item.price * item.count).toFixed (2) ;
+            cartCopy.push(itemCopy);
+        }
+        // return cartCopy;
+        return cartCopy;
+    }
+
+    //saves cart information to local storage - retreavs cart if you leave and come back
+    //allows us to pass shopping cart around between different pages
+    function saveCart() {
+        localStorage.setItem("shoppingCart", JSON.stringify(cart));
+    }
+
+    function loadCart() { //Retrieves cart data?
+        cart = JSON.parse(localStorage.getItem('shoppingCart'));
+
+    }
+
+    loadCart();
+    
+    displayCart();
+    
+    if(localStorage.getItem("cartcreated") == '1'){
+                document.getElementById('theForm').style.display= 'none';
+                document.getElementById('theProducts').style.display= 'inline-block';
+                
+            }else{
+                document.getElementById('theProducts').style.display= 'none';
+                document.getElementById('theForm').style.display= 'inline-block';
+                
+            }
+    
+     function saveForm() {
+            
+            //Get form values.Users values from page
+            var fname = document.getElementById('firstName').value;
+            var lname = document.getElementById('lastName').value;
+            var em = document.getElementById('email').value;
+            var age = document.getElementById('age').value;
+            var fp = document.getElementById('favoriteProduct').value;
+            var streetAddress = document.getElementById('uaddress').value;
+            var city = document.getElementById('ucity').value;
+            var state = document.getElementById('ustate').value;
+            var zip = document.getElementById('uzip').value;
+
+            //Save to localstorage
+            localStorage.setItem("firstname", fname);
+            localStorage.setItem("lastname", lname);
+            localStorage.setItem("email", em);
+            localStorage.setItem("age", age);
+             localStorage.setItem('uaddress', streetAddress);
+            localStorage.setItem('ucity', city);
+            localStorage.setItem('ustate', state);
+            localStorage.setItem("uzip", zip);
+            localStorage.setItem("favproduct", fp);
+            localStorage.setItem("cartcreated", 1);
+            localStorage.setItem("firstsetdate", date);
+           
+            
+        }
+    
+     <!-----VALIDATION FUNCTIONS---------------------------------------------------------------------------------------------------->        
+        //This function checks for blank values and unusual value length "one letter names etc..."
+        //This function throws an error message for the offended text field, highlights the field in red, and prevents moving to the next page.
+        function checkforBlanks()
+        {
+
+           var errorMessage = "";
+   
+            if( document.getElementById("firstName").value =="" || document.getElementById("firstName").value.length < 2 )
+                {
+                    errorMessage +="Please fill out your first name! \n ";
+                    document.getElementById("firstName").style.borderColor = "red";                   
+                }
+            if( document.getElementById("lastName").value =="" || document.getElementById("lastName").value.length < 2 )
+                {
+                    errorMessage +="Please fill out your last name! \n ";
+                    document.getElementById("lastName").style.borderColor = "red";                   
+                }
+            if( document.getElementById("email").value =="" ||document.getElementById("email").value.length < 7 )
+                {
+                    errorMessage +="Please fill out your email! \n ";
+                    document.getElementById("email").style.borderColor = "red";                   
+                }
+            if( document.getElementById("age").value =="" ||document.getElementById("age").value.length < 2 )
+                {
+                    errorMessage +="Please fill out your age! \n ";
+                    document.getElementById("age").style.borderColor = "red";                   
+                }     
+            if(errorMessage != "")
+                {
+                    alert(errorMessage);
+                    return false;
+                }
+        }//end of checkforBlanks function
+        
+        
+        //This function validates that only letters are entered in firstName & lastName textfield.
+       //This function throws an error message for the offended text field, highlights the field in red, and prevents moving to the next page.
+        function validateLetters(input)
+        {
+            var regex = /[^a-z ]/gi;
+            input.value = input.value.replace(regex,"");
+        }//end of validateLetters function
+        
+        
+        //This function validates that only numbers are entered in the age textfield.
+        //This function throws an error message for the offended text field, highlights the field in red, and prevents moving to the next page.
+        function validateNum(input)
+        {
+            var regex = /[^0-9 ]/g;
+            input.value = input.value.replace(regex,"");
+            
+            if(input.value.length> 3)
+                {
+                    input.value = input.value.replace(regex,"");
+                }else{
+                    return;
+                }          
+        }//end of validateNum function
+
+    
+
+</script>
+        
+        
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        
+    </body>
